@@ -17,7 +17,7 @@ public class PersoanaController {
   private List<Persoana> persoane = new ArrayList<Persoana>();
 
   PersoanaController() {
-    Persoana p1 = new Persoana(1, "AnA");
+    Persoana p1 = new Persoana(1, "Ana");
     Persoana p2 = new Persoana(2, "Andreea");
     Persoana p3 = new Persoana(3, "Cristina");
 
@@ -26,12 +26,19 @@ public class PersoanaController {
     persoane.add(p3);
   }
 
-  @RequestMapping(value="/Persoana", method = RequestMethod.GET)
+  @RequestMapping(value="/persoana", method = RequestMethod.GET)
   public List<Persoana> index() {
     return this.persoane;
   }
 
-  @RequestMapping(value="/Persoana/{id}", method = RequestMethod.GET)
+@RequestMapping(value="/persoana", method = RequestMethod.POST)
+  public ResponseEntity create(@RequestBody Persoana p) {
+  persoane.add(p);
+  
+    return new ResponseEntity<Persoana>(p, new HttpHeaders(), HttpStatus.OK);
+  }
+
+  @RequestMapping(value="/persoana/{id}", method = RequestMethod.GET)
   public ResponseEntity show(@PathVariable("id") int id) {
     for(Persoana p : this.persoane) {
       if(p.getId() == id) {
@@ -41,7 +48,17 @@ public class PersoanaController {
     return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
   }
 
-  @RequestMapping(value="/Persoana/{id}", method = RequestMethod.DELETE)
+  @RequestMapping(value="/persoana/{id}/{nume}", method = RequestMethod.PUT)
+  public List<Persoana> update(@PathVariable("id") int id,@PathVariable("nume") String nume){
+    for(Persoana p : this.persoane){
+      if(p.getId() == id)     {
+      p.setName(nume);
+      }
+    }
+    return this.persoane;
+  }
+  
+  @RequestMapping(value="/persoana/{id}", method = RequestMethod.DELETE)
   public ResponseEntity remove(@PathVariable("id") int id) {
     for(Persoana p : this.persoane) {
       if(p.getId() == id) {
@@ -51,28 +68,4 @@ public class PersoanaController {
     }
     return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
   }
-
- @RequestMapping(value="/Persoana/{id}/{name}", method = RequestMethod.POST)
-  public ResponseEntity post(@PathVariable("id") int id, @PathVariable("name") String name) {
-	Persoana pers = new Persoana(id, name);
-	persoane.add(pers);
-	return new ResponseEntity<Persoana>(pers, new HttpHeaders(), HttpStatus.OK);
-  }
-
-  @RequestMapping(value="/Persoana/{id}/{name}", method = RequestMethod.PUT)
-  public ResponseEntity put(@PathVariable("id") int id, @PathVariable("name") String name) {	
-  	for(Persoana p : this.persoane) {
-      		if(p.getId() == id) {
-			p.setId(10);
-			p.setName(name);
-			return new ResponseEntity<Persoana>(p, new HttpHeaders(), HttpStatus.OK);	
-                }
-  	}
-	return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
-  }
-
-
-
-
-
 }
