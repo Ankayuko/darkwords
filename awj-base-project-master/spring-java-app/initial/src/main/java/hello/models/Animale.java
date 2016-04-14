@@ -17,7 +17,9 @@ public class Animale {
   public String getName() {
       return this.name;
   }
-
+ public void setName(String name) {
+      this.name = name;
+  }
   public int getId() {
     return this.id;
   }

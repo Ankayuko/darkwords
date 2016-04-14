@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -32,46 +33,55 @@ public class CartiController {
  
   }
 
-  @RequestMapping(value="/Carti", method = RequestMethod.GET)
+  @RequestMapping(value="/carti", method = RequestMethod.GET)
   public List<Carti> index() {
     return this.carti;
   }
 
-@RequestMapping(value="/Carti", method = RequestMethod.POST)
-  public ResponseEntity create(@RequestBody Carti p) {
-  carti.add(p);
-  
+  @RequestMapping(value="/carti/{nume}", method = RequestMethod.POST)
+  public ResponseEntity create(@PathVariable("nume") String name) {
+	  
+	 Carti p = new Carti(this.carti.size() + 1,name); 
+	 this.carti.add(p);
+	
     return new ResponseEntity<Carti>(p, new HttpHeaders(), HttpStatus.OK);
   }
 
-  @RequestMapping(value="/Carti/{id}", method = RequestMethod.GET)
+
+  
+  @RequestMapping(value="/carte/{id}", method = RequestMethod.GET)
   public ResponseEntity show(@PathVariable("id") int id) {
-    for(Carti p : this.carti) {
-      if(p.getId() == id) {
-        return new ResponseEntity<Carti>(p, new HttpHeaders(), HttpStatus.OK);
+    for(Carti c : this.carti) {
+      if(c.getId() == id) {
+        return new ResponseEntity<Carti>(c, new HttpHeaders(), HttpStatus.OK);
       }
     }
     return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
   }
-
-  @RequestMapping(value="/Carti/{id}/{nume}", method = RequestMethod.PUT)
-  public List<Carti> update(@PathVariable("id") int id,@PathVariable("nume") String nume){
-    for(Carti p : this.carti){
-      if(p.getId() == id)     {
-      p.setName(nume);
+  
+   
+   
+  @RequestMapping(value="/carte", method = RequestMethod.PUT)
+  public List<Carti> update(@RequestBody Carti carte){
+    for(Carti c : this.carti){
+      if(carte.getId() == c.getId())		  {
+		  carti.set(carti.indexOf(c), carte);
       }
     }
     return this.carti;
   }
   
-  @RequestMapping(value="/Carti/{id}", method = RequestMethod.DELETE)
+  
+  @RequestMapping(value="/carte/{id}", method = RequestMethod.DELETE)
   public ResponseEntity remove(@PathVariable("id") int id) {
-    for(Carti p : this.carti) {
-      if(p.getId() == id) {
-        this.carti.remove(p);
-        return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NO_CONTENT);
+    for(Carti c : this.carti) {
+      if(c.getId() == id) {
+        this.carti.remove(c);
+        return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.OK);
       }
     }
     return new ResponseEntity<String>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
   }
+  
+  
 }

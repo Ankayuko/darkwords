@@ -1,67 +1,102 @@
+
 var app = angular.module('blog', [ ]);
 
-app.controller('HomeController', ['$scope', function($scope) {
-  $scope.helloWorld = 'Aplicatii Web cu suport Java!';
 
+app.directive('modal', function () { //directiva necesara pentru rularea modalelor
+    return {
+      template: '<div class="modal fade">' + 
+          '<div class="modal-dialog">' + 
+            '<div class="modal-content">' + 
+              '<div class="modal-header">' + 
+                '<button type="button" class="close"  aria-hidden="true">&times;</button>' + 
+                '<h4 class="modal-title">{{ title }}</h4>' + 
+              '</div>' + 
+              '<div class="modal-body" ng-transclude></div>' + 
+            '</div>' + 
+          '</div>' + 
+        '</div>',
+      restrict: 'E',
+      transclude: true,
+      replace:true,
+      scope:true,
+      link: function postLink(scope, element, attrs) {
+        scope.title = attrs.title;
+
+        scope.$watch(attrs.visible, function(value){
+          if(value == true)
+            $(element).modal('show');
+          else
+            $(element).modal('hide');
+        });
+
+        $(element).on('shown.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = true;
+          });
+        });
+
+        $(element).on('hidden.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = false;
+          });
+        });
+      }
+    };
+  });
+    
++app.controller('HomeController', ['$scope', '$http', function($scope, $http) {
+  $scope.helloWorld = 'AWJ';
 }]);
 
-var url = "http://localhost:8080/persoana";
-   $scope.persoane = [];
++app.controller('PersoanaController', ['$scope', '$http', function($scope, $http) {
+   
+   var url = "http://localhost:8080/persoana";
+   
+   $scope.obiecte = [];
    $scope.keys = [];
-  $scope.obj={};
-   $scope.person = {};
-   $scope.editPersoana = {};
-
-   $scope.animale = [];
-   $scope.keys = [];
-  $scope.obj={};
-   $scope.animal = {};
-   $scope.editAnimale = {};
-
-   $scope.carti = [];
-   $scope.keys = [];
-  $scope.obj={};
-   $scope.carte = {};
-   $scope.editCarti = {};
-
+   $scope.obj={};
+   $scope.obiect = {};
+   $scope.editObject = {};
+   $scope.showModal = false;
+   $scope.showObiect = {};
+  
+   $scope.displayModal = function(id){	   
+       $scope.showModal = !$scope.showModal;
+	   $http.get(url + "/" + parseInt(id)).then(	   
+	   function successCallback(response) {
+       $scope.showObiect = response.data;		   
+	   });	    
+	   };
  
  
- 
-   $http.get('http://localhost:8080/persoana').then(
+   $http.get(url).then(
      function successCallback(response) {
-    $scope.obj=response;
-     $scope.persoane = $scope.obj.data;
+	 $scope.obj=response;
+     $scope.obiecte = $scope.obj.data;
      $scope.keys = Object.keys(response.data[0]);
    });
  
  
-   $scope.addPersoana = function(persoana) {
-        persoana.id = parseInt(persoana.id);
-        console.log(persoana.id);
+   $scope.addObiect = function(obiect) {
+        obiect.id = parseInt(obiect.id);
         $http({
             method: 'POST',
             url: url,
-            data: persoana
+            data: obiect
         }).then(function successCallback(response) {
-            console.log(response);
-            $scope.persoane.push(persoana);
+            $scope.obiecte.push(obiect);
             // done.
-        }, function errorCallback(response) {
-            console.log(response);
-        });
-    };
+        })};
 
 
-    $scope.deletePersoana = function(id) {
+    $scope.deleteObiect = function(id) {
         $http({
             method: 'DELETE',
             url: url+'/' + id,
             data: {}
         }).then(function successCallback(response) {
-            // aici nu intra niciodata ca e functia de succes
         }, function errorCallback(response) {
-            // aici intra pentru ca da eroare
-            $scope.persoane = $scope.persoane.filter(function(obj) {
+            $scope.obiecte = $scope.obiecte.filter(function(obj) {
                 return obj.id !== id;
             });
         });
@@ -69,63 +104,77 @@ var url = "http://localhost:8080/persoana";
 
 
 
-    $scope.setUpdatePerson = function(person) {
-        $scope.editPersoana = person;
+    $scope.setUpdateObiect = function(obiect) {
+        $scope.editObiect = obiect;
     };
 
 
-    $scope.updatePersoana = function() {
+    $scope.updateObiect = function() {
         $http({
             method: 'PUT',
             url: url,
-            data: $scope.editPersoana
+            data: $scope.editObiect
         }).then(function successCallback(response) {
-            $scope.editPersoana = {};
+            $scope.editObiect = {};
             console.log(response);
             // $scope.persoane.push($scope.editPerson);
             // done.
         }, function errorCallback(response) {
-            $scope.editPersoana = {};
+            $scope.editObiect = {};
             console.log(response);
         });
     };
   }]);
-
-   $http.get('http://localhost:8080/animale').then(
+   
++app.controller('CarteController', ['$scope', '$http', function($scope, $http) {
+	  
+    var url = "http://localhost:8080/carti";
+   
+   $scope.obiecte = [];
+   $scope.keys = [];
+   $scope.obj={};
+   $scope.obiect = {};
+   $scope.editObject = {};
+   $scope.showModal = false;
+   $scope.showObiect = {};
+  
+   $scope.displayModal = function(id){	   
+       $scope.showModal = !$scope.showModal;
+	   $http.get(url + "/" + parseInt(id)).then(	   
+	   function successCallback(response) {
+       $scope.showObiect = response.data;		   
+	   });	    
+	   };
+ 
+ 
+   $http.get(url).then(
      function successCallback(response) {
-    $scope.obj=response;
-     $scope.persoane = $scope.obj.data;
+	 $scope.obj=response;
+     $scope.obiecte = $scope.obj.data;
      $scope.keys = Object.keys(response.data[0]);
    });
  
  
-   $scope.addAnimale = function(animale) {
-        animale.id = parseInt(animale.id);
-        console.log(animale.id);
+   $scope.addObiect = function(obiect) {
+        obiect.id = parseInt(obiect.id);
         $http({
             method: 'POST',
             url: url,
-            data: animale
+            data: obiect
         }).then(function successCallback(response) {
-            console.log(response);
-            $scope.animale.push(animale);
+            $scope.obiecte.push(obiect);
             // done.
-        }, function errorCallback(response) {
-            console.log(response);
-        });
-    };
+        })};
 
 
-    $scope.deleteAnimale = function(id) {
+    $scope.deleteObiect = function(id) {
         $http({
             method: 'DELETE',
             url: url+'/' + id,
             data: {}
         }).then(function successCallback(response) {
-            // aici nu intra niciodata ca e functia de succes
         }, function errorCallback(response) {
-            // aici intra pentru ca da eroare
-            $scope.animale = $scope.animale.filter(function(obj) {
+            $scope.obiecte = $scope.obiecte.filter(function(obj) {
                 return obj.id !== id;
             });
         });
@@ -133,63 +182,77 @@ var url = "http://localhost:8080/persoana";
 
 
 
-    $scope.setUpdateAnimale = function(animal) {
-        $scope.editAnimale = animale;
+    $scope.setUpdateObiect = function(obiect) {
+        $scope.editObiect = obiect;
     };
 
 
-    $scope.updateAnimale = function() {
+    $scope.updateObiect = function() {
         $http({
             method: 'PUT',
             url: url,
-            data: $scope.editAnimale
+            data: $scope.editObiect
         }).then(function successCallback(response) {
-            $scope.editAnimale = {};
+            $scope.editObiect = {};
             console.log(response);
             // $scope.persoane.push($scope.editPerson);
             // done.
         }, function errorCallback(response) {
-            $scope.editAnimale = {};
+            $scope.editObiect = {};
             console.log(response);
         });
     };
   }]);
-
-   $http.get('http://localhost:8080/persoana').then(
+  
++app.controller('AnimalController', ['$scope', '$http', function($scope, $http) {
+	  
+    var url = "http://localhost:8080/animal";
+   
+   $scope.obiecte = [];
+   $scope.keys = [];
+   $scope.obj={};
+   $scope.obiect = {};
+   $scope.editObject = {};
+   $scope.showModal = false;
+   $scope.showObiect = {};
+  
+   $scope.displayModal = function(id){	   
+       $scope.showModal = !$scope.showModal;
+	   $http.get(url + "/" + parseInt(id)).then(	   
+	   function successCallback(response) {
+       $scope.showObiect = response.data;		   
+	   });	    
+	   };
+ 
+ 
+   $http.get(url).then(
      function successCallback(response) {
-    $scope.obj=response;
-     $scope.persoane = $scope.obj.data;
+	 $scope.obj=response;
+     $scope.obiecte = $scope.obj.data;
      $scope.keys = Object.keys(response.data[0]);
    });
  
  
-   $scope.addCarti = function(carti) {
-        carti.id = parseInt(carti.id);
-        console.log(carti.id);
+   $scope.addObiect = function(obiect) {
+        obiect.id = parseInt(obiect.id);
         $http({
             method: 'POST',
             url: url,
-            data: carti
+            data: obiect
         }).then(function successCallback(response) {
-            console.log(response);
-            $scope.carti.push(carti);
+            $scope.obiecte.push(obiect);
             // done.
-        }, function errorCallback(response) {
-            console.log(response);
-        });
-    };
+        })};
 
 
-    $scope.deleteCarti = function(id) {
+    $scope.deleteObiect = function(id) {
         $http({
             method: 'DELETE',
             url: url+'/' + id,
             data: {}
         }).then(function successCallback(response) {
-            // aici nu intra niciodata ca e functia de succes
         }, function errorCallback(response) {
-            // aici intra pentru ca da eroare
-            $scope.persoane = $scope.carti.filter(function(obj) {
+            $scope.obiecte = $scope.obiecte.filter(function(obj) {
                 return obj.id !== id;
             });
         });
@@ -197,24 +260,26 @@ var url = "http://localhost:8080/persoana";
 
 
 
-    $scope.setUpdateCarti = function(carte) {
-        $scope.editCarti = carte;
+    $scope.setUpdateObiect = function(obiect) {
+        $scope.editObiect = obiect;
     };
 
 
-    $scope.updateCarti = function() {
+    $scope.updateObiect = function() {
         $http({
             method: 'PUT',
             url: url,
-            data: $scope.editCarti
+            data: $scope.editObiect
         }).then(function successCallback(response) {
-            $scope.editCarti = {};
+            $scope.editObiect = {};
             console.log(response);
             // $scope.persoane.push($scope.editPerson);
             // done.
         }, function errorCallback(response) {
-            $scope.editCarti = {};
+            $scope.editObiect = {};
             console.log(response);
         });
     };
   }]);
+  
+ 
